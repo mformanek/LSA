@@ -166,26 +166,3 @@ user { 'mformanek':
     shell      => '/bin/bash',
     uid        => '251',
   }
-
-#Only for file server - Machine E
-
-  file { '/home/managers':
-    ensure => 'directory',
-    owner  => 'mscott',
-    group  => 'managers',
-    mode   => '3770',
-  }
-
-  file { '/home/accounting':
-    ensure => 'directory',
-    owner  => 'amartin',
-    group  => 'accounting',
-    mode   => '3770',
-  }
-
-  file { '/home/sales':
-    ensure => 'directory',
-    owner  => 'abernard',
-    group  => 'sales',
-    mode   => '3770',
-  }
