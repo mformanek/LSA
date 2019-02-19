@@ -1,7 +1,5 @@
 #Create Users and User Groups on all the machines
 
-class add_group {
-
   group { 'managers':
   	ensure => 'present',
     gid => 2001,
@@ -16,10 +14,6 @@ class add_group {
   	ensure => 'present',
     gid => 2003,
   }
-
-}
-
-class add_user {
 
   user { 'mscott':
     ensure     => 'present',
@@ -172,10 +166,8 @@ user { 'mformanek':
     shell      => '/bin/bash',
     uid        => '251',
   }
-}
 
 #Only for file server - Machine E
-class directories {
 
   file { '/home/managers':
     ensure => 'directory',
@@ -197,5 +189,3 @@ class directories {
     group  => 'sales',
     mode   => '3770',
   }
-
-}
