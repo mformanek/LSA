@@ -1,0 +1,201 @@
+\documentclass[11pt,onside]{article}
+\usepackage[a4paper]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{lipsum}
+\usepackage{bm}
+\usepackage{upgreek}
+\usepackage{graphicx}
+
+\usepackage{amsmath}
+% mathtools for: Aboxed (put box on last equation in align envirenment)
+\usepackage{microtype} %improves the spacing between words and letters
+%% COLOR DEFINITIONS
+
+%\usepackage[svgnames]{xcolor} % Enabling mixing colors and color's call by 'svgnames'
+\usepackage{listings}
+\usepackage[usenames,dvipsnames]{color}    
+
+\lstset{ 
+  language=R,                     % the language of the code
+  basicstyle=\tiny\ttfamily, % the size of the fonts that are used for the code
+  numbers=left,                   % where to put the line-numbers
+  numberstyle=\tiny\color{Blue},  % the style that is used for the line-numbers
+  stepnumber=1,                   % the step between two line-numbers. If it is 1, each line
+                                  % will be numbered
+  numbersep=5pt,                  % how far the line-numbers are from the code
+  backgroundcolor=\color{white},  % choose the background color. You must add \usepackage{color}
+  showspaces=false,               % show spaces adding particular underscores
+  showstringspaces=false,         % underline spaces within strings
+  showtabs=false,                 % show tabs within strings adding particular underscores
+  frame=single,                   % adds a frame around the code
+  rulecolor=\color{black},        % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. commens (green here))
+  tabsize=2,                      % sets default tabsize to 2 spaces
+  captionpos=b,                   % sets the caption-position to bottom
+  breaklines=true,                % sets automatic line breaking
+  breakatwhitespace=false,        % sets if automatic breaks should only happen at whitespace
+  keywordstyle=\color{RoyalBlue},      % keyword style
+  commentstyle=\color{Green},   % comment style
+  stringstyle=\color{Orange}      % string literal style
+}  
+
+\definecolor{MyColor1}{rgb}{0.2,0.4,0.6} %mix personal color
+\newcommand{\textb}{\color{Black} \usefont{OT1}{lmss}{m}{n}}
+\newcommand{\blue}{\color{MyColor1} \usefont{OT1}{lmss}{m}{n}}
+\newcommand{\blueb}{\color{MyColor1} \usefont{OT1}{lmss}{b}{n}}
+\newcommand{\red}{\color{LightCoral} \usefont{OT1}{lmss}{m}{n}}
+\newcommand{\green}{\color{Turquoise} \usefont{OT1}{lmss}{m}{n}}
+
+\DeclareMathOperator{\trace}{trace}
+\DeclareMathOperator{\diag}{diag}
+
+%% FONTS AND COLORS
+
+%    SECTIONS
+
+\usepackage{titlesec}
+\usepackage{sectsty}
+%%%%%%%%%%%%%%%%%%%%%%%%
+%set section/subsections HEADINGS font and color
+\sectionfont{\color{MyColor1}}  % sets colour of sections
+\subsectionfont{\color{MyColor1}}  % sets colour of sections
+
+%set section enumerator to arabic number (see footnotes markings alternatives)
+\renewcommand\thesection{\arabic{section}.} %define sections numbering
+\renewcommand\thesubsection{\thesection\arabic{subsection}} %subsec.num.
+
+%define new section style
+\newcommand{\mysection}{
+\titleformat{\section} [runin] {\usefont{OT1}{lmss}{b}{n}\color{MyColor1}} 
+{\thesection} {3pt} {} } 
+
+
+%	CAPTIONS
+\usepackage{caption}
+\usepackage{subcaption}
+%%%%%%%%%%%%%%%%%%%%%%%%
+\captionsetup[figure]{labelfont={color=Turquoise}}
+
+
+%		!!!EQUATION (ARRAY) --> USING ALIGN INSTEAD
+%using amsmath package to redefine eq. numeration (1.1, 1.2, ...) 
+\renewcommand{\theequation}{\thesection\arabic{equation}}
+
+
+
+\makeatletter
+\let\reftagform@=\tagform@
+\def\tagform@#1{\maketag@@@{(\ignorespaces\textcolor{red}{#1}\unskip\@@italiccorr)}}
+\renewcommand{\eqref}[1]{\textup{\reftagform@{\ref{#1}}}}
+\makeatother
+\usepackage{hyperref}
+\hypersetup{colorlinks=true}
+
+% For labeling top of page on every page but first one:
+\usepackage{fancyhdr}
+
+% PREPARE TITLE:
+\title{\blue CSCI4113 \\
+\blueb LAB5 Notes}
+\author{Milan Formanek}
+\date{\today} % You can set the date automatically by replacing "date goes here" with "\today"
+
+\renewcommand{\rmdefault}{phv} % Arial Font
+\renewcommand{\sfdefault}{phv} % Arial Font
+
+\pagestyle{fancy}
+\fancyhead{}
+\fancyhead[CO,CE]{{\small{{\bf{LAB5 Notes}} - CSCI4113 - Spring 19 - Milan Formanek}}}
+
+
+
+\begin{document}
+\maketitle
+
+\section{Configuring machine A}
+Machine A funtions as the router for the DunderMifflin network. IP forwarding and NAT is already set up, the only thing left to do is set up DHCP. For this the DHCPd deamon has to be installed and correctly configured to start on boot and give all the other machines on the network the correct IPs and Host names.\\
+First off, the router will used fixed addressing and the Host name is set statically in /etc/hostname. It does not make sense to use dynamic addressing for the router. It's much safer to have it fixed and as far as I know the HDCPd deamon needs to bind to an IP at boot or will fail to start.\\
+The DHCPd deamon is installed using the yum install dhcp command.
+\begin{lstlisting}
+[root@machinea ~]# systemctl enable dhcpd.service
+Created symlink from /etc/systemd/system/multi-user.target.wants/dhcpd.service to /usr/lib/systemd/system/dhcpd.service.
+\end{lstlisting}
+Above is the command used to set DHCPd to run on boot.\\
+After that the /etc/dhcp/dhcpd.conf file has to be built. Special care has to be taken when setting the subnet addressing, static IP tables, and other specifics or it will not work! The dhcpd.conf file is attached in the appendix.
+\section{Configuring machines B,C,D,E,F}
+Machines B,C,D,E and F need to be configured co take the new IP and Host name from the Router. To do this the network sysconfig file for ens192 at /etc/sysconfig/network-scripts/ifcfg-ens192 has to be modified by changing the line BOOTPROTO=none to BOOTPROTO=dhcp. The lines IPADDR=, NETMASK= and GATEWAY= are removed from the file. The MAC addresses of the individual machines are also noted for configuring the router. The Host name is also hard coded into the machines and so in the file /etc/hostname the single line with the host name has to be removed. After that the machines are rebooted in order to check if the new configuration sticks.\\
+Machine F came configured running the NetworkManager service, this had to be disabled and the ifcfg-ens192 config file had to be created to keep the setting between all the machines consistent.
+\clearpage
+\begin{lstlisting}
+[root@carriage ~]# hostname
+carriage.dundermifflin.com
+\end{lstlisting}
+The new configuration can be checked using the hostname command.
+\section{Appendix - /etc/dhcp/dhcpd.conf}
+\begin{lstlisting}
+# dhcpd.conf
+#
+#DUNDER MIFFLIN DHCP Config file
+
+option domain-name "dundermifflin.com";
+
+#option domain-name-servers ns1.example.org, ns2.example.org;
+
+default-lease-time 600;
+max-lease-time 7200;
+
+authoritative;
+
+log-facility local7;
+
+# No service will be given on this subnet, but declaring it helps the
+# DHCP server to understand the network topology.
+# This is a very basic subnet declaration.
+
+subnet 100.64.21.0 netmask 255.255.255.0 {
+  option routers        100.64.21.1;
+  option subnet-mask    255.255.255.0;
+  option domain-search  "dundermifflin.com";
+  range 100.64.21.10 100.64.21.50;
+}
+
+
+subnet 10.21.32.0 netmask 255.255.255.0 {
+  option routers        10.21.32.1;
+  option subnet-mask    255.255.255.0;
+  option domain-search  "dundermifflin.com";
+  range 10.21.32.10 10.21.32.5;
+}
+
+host carriage {
+  option host-name      "carriage.dundermifflin.com";
+  hardware ethernet     00:50:56:b4:b5:26;
+  fixed-address         100.64.21.2;
+}
+
+host platen {
+  option host-name      "platen.dundermifflin.com";
+  hardware ethernet     00:50:56:b4:68:7a;
+  fixed-address         100.64.21.3;
+}
+
+host chase {
+  option host-name      "chase.dundermifflin.com";
+  hardware ethernet     00:50:56:b4:34:35;
+  fixed-address         100.64.21.4;
+}
+
+host roller {
+  option host-name      "roller.dundermifflin.com";
+  hardware ethernet     00:50:56:b4:49:b3;
+  fixed-address         10.21.32.2;
+}
+
+host saddle {
+  option host-name      "saddle.dundermifflin.com";
+  hardware ethernet     00:50:56:b4:b4:8b;
+  fixed-address         100.64.21.5;
+}
+
+\end{lstlisting}
+\end{document}

@@ -1,0 +1,229 @@
+\documentclass[11pt,onside]{article}
+\usepackage[a4paper]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{lipsum}
+\usepackage{bm}
+\usepackage{upgreek}
+\usepackage{graphicx}
+
+\usepackage{amsmath}
+% mathtools for: Aboxed (put box on last equation in align envirenment)
+\usepackage{microtype} %improves the spacing between words and letters
+%% COLOR DEFINITIONS
+
+%\usepackage[svgnames]{xcolor} % Enabling mixing colors and color's call by 'svgnames'
+\usepackage{listings}
+\usepackage[usenames,dvipsnames]{color}    
+
+\lstset{ 
+  language=R,                     % the language of the code
+  basicstyle=\tiny\ttfamily, % the size of the fonts that are used for the code
+  numbers=left,                   % where to put the line-numbers
+  numberstyle=\tiny\color{Blue},  % the style that is used for the line-numbers
+  stepnumber=1,                   % the step between two line-numbers. If it is 1, each line
+                                  % will be numbered
+  numbersep=5pt,                  % how far the line-numbers are from the code
+  backgroundcolor=\color{white},  % choose the background color. You must add \usepackage{color}
+  showspaces=false,               % show spaces adding particular underscores
+  showstringspaces=false,         % underline spaces within strings
+  showtabs=false,                 % show tabs within strings adding particular underscores
+  frame=single,                   % adds a frame around the code
+  rulecolor=\color{black},        % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. commens (green here))
+  tabsize=2,                      % sets default tabsize to 2 spaces
+  captionpos=b,                   % sets the caption-position to bottom
+  breaklines=true,                % sets automatic line breaking
+  breakatwhitespace=false,        % sets if automatic breaks should only happen at whitespace
+  keywordstyle=\color{RoyalBlue},      % keyword style
+  commentstyle=\color{Green},   % comment style
+  stringstyle=\color{Orange}      % string literal style
+}  
+
+\definecolor{MyColor1}{rgb}{0.2,0.4,0.6} %mix personal color
+\newcommand{\textb}{\color{Black} \usefont{OT1}{lmss}{m}{n}}
+\newcommand{\blue}{\color{MyColor1} \usefont{OT1}{lmss}{m}{n}}
+\newcommand{\blueb}{\color{MyColor1} \usefont{OT1}{lmss}{b}{n}}
+\newcommand{\red}{\color{LightCoral} \usefont{OT1}{lmss}{m}{n}}
+\newcommand{\green}{\color{Turquoise} \usefont{OT1}{lmss}{m}{n}}
+
+\DeclareMathOperator{\trace}{trace}
+\DeclareMathOperator{\diag}{diag}
+
+%% FONTS AND COLORS
+
+%    SECTIONS
+
+\usepackage{titlesec}
+\usepackage{sectsty}
+%%%%%%%%%%%%%%%%%%%%%%%%
+%set section/subsections HEADINGS font and color
+\sectionfont{\color{MyColor1}}  % sets colour of sections
+\subsectionfont{\color{MyColor1}}  % sets colour of sections
+
+%set section enumerator to arabic number (see footnotes markings alternatives)
+\renewcommand\thesection{\arabic{section}.} %define sections numbering
+\renewcommand\thesubsection{\thesection\arabic{subsection}} %subsec.num.
+
+%define new section style
+\newcommand{\mysection}{
+\titleformat{\section} [runin] {\usefont{OT1}{lmss}{b}{n}\color{MyColor1}} 
+{\thesection} {3pt} {} } 
+
+
+%	CAPTIONS
+\usepackage{caption}
+\usepackage{subcaption}
+%%%%%%%%%%%%%%%%%%%%%%%%
+\captionsetup[figure]{labelfont={color=Turquoise}}
+
+
+%		!!!EQUATION (ARRAY) --> USING ALIGN INSTEAD
+%using amsmath package to redefine eq. numeration (1.1, 1.2, ...) 
+\renewcommand{\theequation}{\thesection\arabic{equation}}
+
+
+
+\makeatletter
+\let\reftagform@=\tagform@
+\def\tagform@#1{\maketag@@@{(\ignorespaces\textcolor{red}{#1}\unskip\@@italiccorr)}}
+\renewcommand{\eqref}[1]{\textup{\reftagform@{\ref{#1}}}}
+\makeatother
+\usepackage{hyperref}
+\hypersetup{colorlinks=true}
+
+% For labeling top of page on every page but first one:
+\usepackage{fancyhdr}
+
+% PREPARE TITLE:
+\title{\blue CSCI4113 \\
+\blueb LAB4 Notes}
+\author{Milan Formanek}
+\date{\today} % You can set the date automatically by replacing "date goes here" with "\today"
+
+\renewcommand{\rmdefault}{phv} % Arial Font
+\renewcommand{\sfdefault}{phv} % Arial Font
+
+\pagestyle{fancy}
+\fancyhead{}
+\fancyhead[CO,CE]{{\small{{\bf{LAB4 Notes}} - CSCI4113 - Spring 19 - Milan Formanek}}}
+
+
+
+\begin{document}
+\maketitle
+
+\section{}
+For Meredith to be able to run the systemctl restart vsftpd, the line\\ mpalmer ALL = NOPASSWD: /bin/systemctl restart vsftpd\\ is added to the file /etc/sudoers on Machine C. This will allow Meredith to run the sudo systemctl restart vsftpd command. \\
+
+To allow Meredith to read and write /var/ftp we run the following commands. First we add mpalmer to the group ftp, then we own /var/ftp with the ftp group and finally we set the group to rwx on the folder.
+\begin{lstlisting}
+[root@machinec ~]# usermod -a -G ftp mpalmer
+[root@machinec ~]# chown -R :ftp /var/ftp
+[root@machinec ~]# chmod -R 775 /var/ftp
+\end{lstlisting}
+
+\section{}
+In order for Pam, Kelly and Andy to be able to restart the httpd deamon the following 2 lines are added to /etc/sudoers Machine B \\
+User\_Alias HTTPD = pbeesly, kkapoor, abernard \\
+HTTPD ALL = NOPASSWD: /usr/sbin/apachectl restart \\
+This will add Pam Kelly and Andy under the alias HTTPD to the sudoers white list. \\
+\begin{lstlisting}
+[root@machineb ~]# chmod -R 757 /var/www/dundermifflin/
+\end{lstlisting}
+Setting the directory rwx for everyone allows for Pam, Kelly and Andy to access the /var/www/dundermifflin directory. Not the most secure but since everyone else will be locked out of logging into machine B, I think this is fine.
+\section{}
+To get the desired effect the default umask has to be set to 007. In order to do this the /etc/profile file is modified changing both umask lines to umask 007. This is done on Machines A,C,D and E.
+\section{}
+To restrict user access we will first modify the /etc/ssh/sshd\_config and file, by adding the line \\
+UsePAM yes \\
+Then we modify /etc/pam.d/system-auth and  /etc/pam.d/password-auth
+by adding the line below to both files. \\
+account     required      pam\_access.so\\
+This is done on Machines A-D. The final step is modifying the /etc/security/access.conf. This has to be done according to what users need access on the individual machines. For Machines A and D only users root, mformanek, dschrute, mscott need access. For Machine B it's  root, mformanek, dschrute, mscott, pbeesly, kkapoor, abernard and for Machine C it's users root, mformanek, dschrute, mscott, mpalmer. This done by adding the following lines to the /etc/security/access.conf file. \\
++:[USERS\_ALLOWED]:ALL\\
+-:ALL:ALL\\
+\section{}
+Only the root, mformanek and dschrute accounts should be able to run all commands with sudo. To do this the allow people in wheel group to run all commands without password line has to be uncommented in /etc/sudoers file. After that the admin accounts have to be added to the wheel group using the commands below.
+\begin{lstlisting}
+[root@machinea ~]# usermod -aG wheel mformanek
+[root@machinea ~]# usermod -aG wheel dschrute
+\end{lstlisting}
+This has to be done for all Machines A-E.
+\section{}
+To allow user mscott to shutdown machines with at least 2 hour notice and cancel pending shutdowns the following lines are added to the /etc/sudoers on Machines A-E. \\
+mscott ALL = NOPASSWD: /usr/sbin/shutdown -c \\
+mscott ALL = NOPASSWD: /usr/sbin/shutdown +[2-9][0-9][0-9]* \\
+mscott ALL = NOPASSWD: /usr/sbin/shutdown +[1-2][2-9][0-9]* \\
+mscott ALL = NOPASSWD: /usr/sbin/shutdown +1[0-9][0-9][0-9]* \\
+\section{}
+To enforce the new password rules 2 files have to be modified on Machines A-E. First,  in /etc/login.defs the line PASS\_MIN\_LEN has to be set to 10. Second in the file /etc/pam.d/system-auth the ucredit=-2 dcredit=-1 and minlen=10 parameters have to be added to the line password requisite pam\_pwquality.so. This will set the requirement for all passwords to have 2 upper case letters, 2 digits and 1 special character of minimum length 10. 
+\section{Email to Jim}
+Dear Jim, \\
+I was unfortunately unable to grant you the right you requested due to our company policy. I would need written permission from M.Scott for you to gain admin rights.
+I have also reset you password, in the future please refrain from giving your password out to anyone (including me).\\
+
+Regards,\\
+
+DM Admin\\
+
+M Formanek\\
+
+P.S. I hope we are still on for the weekend bbq!   
+\section{Purposed password policy}
+\setcounter{section}{1}
+\subsection{Overview}
+Passwords are an important aspect of computer security. A poorly chosen password may result
+in unauthorized access and/or exploitation of our resources. All staff, including contractors and
+vendors with access to Dunder Mifflin systems, are responsible for taking the appropriate
+steps, as outlined below, to select and secure their passwords. 
+\subsection{Purpose}
+The purpose of this policy is to establish a standard for creation of strong passwords and the
+protection of those passwords.
+\subsection{Scope}
+The scope of this policy includes all personnel who have or are responsible for an account (or
+any form of access that supports or requires a password) on any system that resides at any
+Dunder Mifflin facility, has access to the Dunder Mifflin network, or stores any nonpublic Dunder Mifflin information.
+\subsection{Policy}
+\subsubsection{Password Creation}
+All user-level and system-level passwords must conform to the Password Construction
+Guidelines.\\
+Users must use a separate, unique password for each of their work related accounts.
+Users may not use any work related passwords for their own, personal accounts.\\
+User accounts that have system-level privileges granted through group memberships or
+programs such as sudo must have a unique password from all other accounts held by that
+user to access system-level privileges. In addition, it is highly recommend that some
+form of multi-factor authentication is used for any privileged accounts.\\
+\subsubsection{Password Change}
+Passwords should be changed only when there is reason to believe a password has been
+compromised.\\
+Password cracking or guessing may be performed on a periodic or random basis by the
+Amin Team or its delegates. If a password is guessed or cracked during one of these scans, the user will be required to change it to be in compliance with the Password
+Construction Guidelines.\\
+\subsubsection{Password Protection}
+Passwords must not be shared with anyone, including supervisors and coworkers. All
+passwords are to be treated as sensitive, Confidential Dunder Mifflin information.
+Corporate Information Security recognizes that legacy applications do not support proxy
+systems in place. Please refer to the technical reference for additional details. \\
+Passwords must not be inserted into email messages, Alliance cases or other forms of
+electronic communication, nor revealed over the phone to anyone. \\
+Passwords may be stored only in “password managers” authorized by the organization.\\
+Do not use the "Remember Password" feature of applications (for example, web
+browsers).\\
+Any user suspecting that his/her password may have been compromised must report the
+incident and change all passwords.\\
+\subsubsection{Password Construction Guidelines.}
+All passwords have to be at least 10 characters long and include at least 2 upper case letters, 2 numbers and 1 special character.
+\subsubsection{Multi-Factor Authentication}
+Multi-factor authentication is highly encouraged and should be used whenever possible,
+not only for work related accounts but personal accounts also.
+\subsection{Policy Compliance}
+\subsubsection{Compliance Measurement}
+The Admin team will verify compliance to this policy through various methods, including but
+not limited to, periodic walk-thrus, video monitoring, business tool reports, internal and external
+audits, and feedback to the policy owner. 
+\subsubsection{Exceptions}
+Any exception to the policy must be approved in writing by the Admin Team and Manager in advance. 
+\subsubsection{Non-Compliance}
+An employee found to have violated this policy may be subject to disciplinary action, up to and
+including termination of employment. 
+\end{document}
